@@ -10,11 +10,11 @@
 
         <ImageView
             android:id="@+id/app_logo"
+            android:layout_width="51dp"
+            android:layout_height="58dp"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:src="@drawable/buythediplogo"/>
+            android:src="@drawable/buythediplogo" />
 
         <TextView
             android:id="@+id/title"

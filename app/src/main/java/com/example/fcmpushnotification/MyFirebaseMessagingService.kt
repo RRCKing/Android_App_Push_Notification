@@ -14,20 +14,23 @@ import com.google.firebase.messaging.RemoteMessage
 
 
 const val channelId = "notification_channel"
-const val channelName = "com.eazyalgo.fcmpushnotification"
+const val channelName = "com.example.fcmpushnotification"
 
+// Do everything related to Firebase here only
 class MyFirebaseMessagingService : FirebaseMessagingService() {
-    // generate the notification
-    override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
-        if (remoteMessage.getNotification() != null){
+    // Generate the notification when the receive the Firebase message
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        // If the remote message notification is not null, then generate the notification
+        if (remoteMessage.notification != null){
             generateNotification(remoteMessage.notification!!.title!!,remoteMessage.notification!!.body!!)
         }
     }
 
+    // Attach the notification created with the custom layout
     @SuppressLint("RemoteViewLayout")
     fun getRemoteView(title: String, message: String): RemoteViews {
-        val remoteView = RemoteViews("com.eazyalgo.fcmpushnotification", R.layout.notification)
+        val remoteView = RemoteViews("com.example.fcmpushnotification", R.layout.notification)
 
         remoteView.setTextViewText(R.id.title, title)
         remoteView.setTextViewText(R.id.message, message)
@@ -36,17 +39,18 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         return remoteView;
     }
 
-
-    fun generateNotification(title: String, message: String){
+    // Generate the notification
+    private fun generateNotification(title: String, message: String){
         val intent = Intent(this,MainActivity::class.java)
 
-        // clear the task in the top and put the upper
+        // Clear all activities and put this activity in the top
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
-        // Flag One Shot means using the intent activity just one, when user click then destory
+        // A Pending intent means we use the intent in the future
+        // Flag One Shot means using the intent activity just one, when user click then destroy
         val pendingIntent = PendingIntent.getActivity(this,0,intent,PendingIntent.FLAG_ONE_SHOT)
 
-        // channel id, channel name make the notification more concise
+        // Use Channel id, channel name make the builder and setup some details of the notification
         var builder: NotificationCompat.Builder = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(R.drawable.buythediplogo)
             .setAutoCancel(false)
@@ -54,10 +58,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent)
 
+        // Set the content to the builder
         builder = builder.setContent(getRemoteView(title, message))
 
+        // Initialize the notification manager
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+        // Check the client android version is grater than the current version to make sure the features is working in latest version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             val notificationChannel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH)
             notificationManager.createNotificationChannel(notificationChannel)
